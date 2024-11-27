@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    fetch-registry: true # Habilita la obtención del registro de servicios desde Eureka
+    register-with-eureka: true # Registra este servicio en Eureka
+    service-url:
+      default-zone: "http://eureka-service:8761/eureka" # URL del servidor Eureka en el clúster de Kubernetes
+  instance:
+    hostname: gateway-service # Cambia "localhost" por el hostname lógico del servicio en el clúster
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # Habilita el descubrimiento automático de servicios en Eureka
+      globalcors:
+        cors-configurations:
+          '[/**]': # Aplica CORS a todas las rutas del Gateway
+            allowedOrigins: 
+              - "*" # Origen permitido (cualquier origen)
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+            allowedHeaders:
+              - "*" # Permite todos los encabezados
+            allowCredentials: false # No se manejan cookies o credenciales
+      routes:
+        - id: empleado-service
+          uri: lb://empleado-service # Load balancer para el servicio empleado
+          predicates:
+           - Path=/api/empleados/**
+        - id: categoria-service
+          uri: lb://categoria-service # Load balancer para el servicio categoría
+          predicates:
+            - Path=/api/categorias/**
+        - id: marcaAsistencia-service
+          uri: lb://marcaAsistencia-service # Load balancer para el servicio marca de asistencia
+          predicates:
+            - Path=/api/asistencias/**
+        - id: horasExtras-service
+          uri: lb://horasExtras-service # Load balancer para el servicio horas extras
+          predicates:
+            - Path=/api/horas-extras/**
+        - id: justificativo-service
+          uri: lb://justificativo-service # Load balancer para el servicio justificativos
+          predicates:
+            - Path=/api/justificativos/**
+        - id: planillaDeSueldos-service
+          uri: lb://planillaDeSueldos-service # Load balancer para el servicio planilla de sueldos
+          predicates:
+            - Path=/api/planillas-sueldos/**
